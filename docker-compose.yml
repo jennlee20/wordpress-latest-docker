@@ -1,0 +1,41 @@
+version: '3'
+
+networks: 
+    wordpress:
+
+services: 
+    mysql:
+        image: mysql:5.7.22
+        container_name: mysql
+        restart: unless-stopped
+        tty: true
+        ports: 
+            - "4306:3306"
+        # To have a persistent mysql database after docker-compose down
+        volumes: 
+            - ./mysql:/var/lib/mysql
+        environment:
+            MYSQL_DATABASE: jennsupport
+            MYSQL_USER: jennsupport
+            MYSQL_PASSWORD: 123456
+            MYSQL_ROOT_PASSWORD: 123456
+        networks: 
+            - wordpress
+
+    wordpress:
+        container_name: wordpress
+        depends_on:
+            - mysql
+        image: wordpress:latest
+        ports:
+            - "8800:80"
+        restart: always
+        environment:
+            WORDPRESS_DB_HOST: mysql
+            WORDPRESS_DB_USER: jennsupport
+            WORDPRESS_DB_PASSWORD: 123456
+            WORDPRESS_DB_NAME: jennsupport
+        volumes:
+            - ./src/public:/var/www/html
+        networks:
+            - wordpress
